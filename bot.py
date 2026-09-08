@@ -108,6 +108,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id,
         user.id,
         ChatPermissions(can_send_messages=False)
+
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # 🔐 Permisos
