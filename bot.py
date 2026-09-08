@@ -16,7 +16,6 @@ async def addadmin(update, context):
         return
 
     if not update.message.reply_to_message:
-        await update.message.reply_text("Responde a un usuario")
         return
 
     user = update.message.reply_to_message.from_user
@@ -90,21 +89,25 @@ async def setowner(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Ya existe owner")
 
 async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
-if not is_admin(update.effective_user.id):
-    await update.message.reply_text("No tienes permiso 🚫")
-    return
+
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("No tienes permiso 🚫")
+        return
+
     if not update.message.reply_to_message:
-        return await update.message.reply_text("Responde a un usuario")
+        await update.message.reply_text("Responde a un usuario")
+        return
 
     user = update.message.reply_to_message.from_user
+    chat_id = update.effective_chat.id
 
     await context.bot.restrict_chat_member(
-        update.effective_chat.id,
+        chat_id,
         user.id,
-        permissions=ChatPermissions(can_send_messages=False)
+        ChatPermissions(can_send_messages=False)
     )
 
-    await update.message.reply_text("🔇 Silenciado")
+    await update.message.reply_text(f"{user.first_name} fue silenciado 🔇")
 
 async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message.reply_to_message:
@@ -122,9 +125,9 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = load_db()
-if not is_admin(update.effective_user.id):
-    await update.message.reply_text("No tienes permiso 🚫")
-    return
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("No tienes permiso 🚫")
+        return
     if not update.message.reply_to_message:
         return
 
@@ -144,9 +147,9 @@ if not is_admin(update.effective_user.id):
     await update.message.reply_text("🚫 Baneado global")
 
 async def warn(update, context):
-if not is_admin(update.effective_user.id):
-    await update.message.reply_text("No tienes permiso 🚫")
-    return
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("No tienes permiso 🚫")
+        return
     if not update.message.reply_to_message:
         await update.message.reply_text("Responde a un usuario")
         return
