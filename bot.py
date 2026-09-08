@@ -171,7 +171,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # 💾 guardar en DB
-    if user.id not in [u
+    if user.id not in [u["id"] for u in group["bans"]]:
 
 async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
