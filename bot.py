@@ -165,16 +165,28 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("No tienes permiso 🚫")
         return
 
-    if not update.message.reply_to_message:
-        await update.message.reply_text("Responde a un usuario")
-        return
-
-    user = update.message.reply_to_message.from_user
     chat_id = update.effective_chat.id
 
+    if not context.args:
+        await update.message.reply_text("Usa /unban @usuario o ID")
+        return
+
+    arg = context.args[0]
+
     try:
-        await context.bot.unban_chat_member(chat_id, user.id)
-        await update.message.reply_text(f"{user.first_name} fue desbaneado ✅")
+        # 🔹 Si es ID
+        if arg.isdigit():
+            user_id = int(arg)
+
+        # 🔹 Si es @username
+        else:
+            username = arg.replace("@", "")
+            user = await context.bot.get_chat(username)
+            user_id = user.id
+
+        await context.bot.unban_chat_member(chat_id, user_id)
+        await update.message.reply_text("Usuario desbaneado ✅")
+
     except Exception as e:
         await update.message.reply_text(f"Error: {e}")
 
