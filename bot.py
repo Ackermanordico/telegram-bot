@@ -69,7 +69,7 @@ def save_db(data):
 
 async def join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = load_db()
-0    chat_id = str(update.effective_chat.id)
+    chat_id = str(update.effective_chat.id)
 
     group = db["groups"].setdefault(chat_id, {"users": {}})
 
