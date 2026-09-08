@@ -125,67 +125,95 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    # 🔐 Permiso
     if not is_admin(update.effective_user.id):
         await update.message.reply_text("No tienes permiso 🚫")
         return
 
     chat_id = update.effective_chat.id
+    chat_id_str = str(chat_id)
 
-    # 🔹 CASO 1: respondiendo a un mensaje
+    db = load_db()
+    group = db["groups"].setdefault(chat_id_str, {"users": {}, "bans": []})
+
+    user = None
+    reason = "Sin razón"
+
+    # 🔹 CASO 1: respondiendo
     if update.message.reply_to_message:
         user = update.message.reply_to_message.from_user
 
-    # 🔹 CASO 2: usando argumento (/ban @user o /ban ID)
+        if context.args:
+            reason = " ".join(context.args)
+
+    # 🔹 CASO 2: usando /ban @usuario motivo
     elif context.args:
         arg = context.args[0]
 
-        # si es ID
-        if arg.isdigit():
-            user_id = int(arg)
-            user = await context.bot.get_chat(user_id)
-
-        # si es @username
-        else:
+        if arg.startswith("@"):
             username = arg.replace("@", "")
-            user = await context.bot.get_chat(username)
+            try:
+                user = await context.bot.get_chat(username)
+            except:
+                await update.message.reply_text("No pude encontrar ese usuario 💀")
+                return
+
+            if len(context.args) > 1:
+                reason = " ".join(context.args[1:])
 
     else:
-        await update.message.reply_text("Usa /ban respondiendo o con @usuario/ID")
+        await update.message.reply_text("Usa /ban respondiendo o /ban @usuario motivo")
         return
 
-    try:
-        await context.bot.ban_chat_member(chat_id, user.id)
-        await update.message.reply_text(f"{user.first_name} fue baneado 🚫")
-    except Exception as e:
-        await update.message.reply_text(f"Error: {e}")
+    # ❌ si no encontró usuario
+    if not user:
+        await update.message.reply_text("Usuario no válido")
+        return
+
+    # 💾 guardar en DB
+    if user.id not in [u
 
 async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    # 🔐 Permiso
     if not is_admin(update.effective_user.id):
         await update.message.reply_text("No tienes permiso 🚫")
         return
 
-    chat_id = update.effective_chat.id
-
+    # ⚠️ Debe llevar argumento
     if not context.args:
-        await update.message.reply_text("Usa /unban @usuario o ID")
+        await update.message.reply_text("Usa /unban @usuario")
         return
 
-    arg = context.args[0]
+    username = context.args[0].replace("@", "")
+    chat_id = update.effective_chat.id
+    chat_id_str = str(chat_id)
+
+    db = load_db()
+    group = db["groups"].get(chat_id_str, {"bans": []})
+
+    user_id = None
+    user_data = None
+
+    # 🔍 buscar en la DB
+    for u in group.get("bans", []):
+        if u.get("username") == username:
+            user_id = u.get("id")
+            user_data = u
+            break
+
+    if not user_id:
+        await update.message.reply_text("Usuario no encontrado en la base de datos 💀")
+        return
 
     try:
-        # 🔹 Si es ID
-        if arg.isdigit():
-            user_id = int(arg)
-
-        # 🔹 Si es @username
-        else:
-            username = arg.replace("@", "")
-            user = await context.bot.get_chat(username)
-            user_id = user.id
-
         await context.bot.unban_chat_member(chat_id, user_id)
-        await update.message.reply_text("Usuario desbaneado ✅")
+
+        # 🧹 eliminar de la lista de baneados
+        group["bans"].remove(user_data)
+        save_db(db)
+
+        await update.message.reply_text(f"@{username} fue desbaneado ✅")
 
     except Exception as e:
         await update.message.reply_text(f"Error: {e}")
