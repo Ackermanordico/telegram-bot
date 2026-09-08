@@ -90,6 +90,9 @@ async def setowner(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Ya existe owner")
 
 async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
+if not is_admin(update.effective_user.id):
+    await update.message.reply_text("No tienes permiso 🚫")
+    return
     if not update.message.reply_to_message:
         return await update.message.reply_text("Responde a un usuario")
 
@@ -119,7 +122,9 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = load_db()
-
+if not is_admin(update.effective_user.id):
+    await update.message.reply_text("No tienes permiso 🚫")
+    return
     if not update.message.reply_to_message:
         return
 
@@ -137,11 +142,11 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
     await update.message.reply_text("🚫 Baneado global")
+
+async def warn(update, context):
 if not is_admin(update.effective_user.id):
     await update.message.reply_text("No tienes permiso 🚫")
-
     return
-async def warn(update, context):
     if not update.message.reply_to_message:
         await update.message.reply_text("Responde a un usuario")
         return
