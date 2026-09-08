@@ -129,12 +129,29 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("No tienes permiso 🚫")
         return
 
-    if not update.message.reply_to_message:
-        await update.message.reply_text("Responde a un usuario")
-        return
-
-    user = update.message.reply_to_message.from_user
     chat_id = update.effective_chat.id
+
+    # 🔹 CASO 1: respondiendo a un mensaje
+    if update.message.reply_to_message:
+        user = update.message.reply_to_message.from_user
+
+    # 🔹 CASO 2: usando argumento (/ban @user o /ban ID)
+    elif context.args:
+        arg = context.args[0]
+
+        # si es ID
+        if arg.isdigit():
+            user_id = int(arg)
+            user = await context.bot.get_chat(user_id)
+
+        # si es @username
+        else:
+            username = arg.replace("@", "")
+            user = await context.bot.get_chat(username)
+
+    else:
+        await update.message.reply_text("Usa /ban respondiendo o con @usuario/ID")
+        return
 
     try:
         await context.bot.ban_chat_member(chat_id, user.id)
