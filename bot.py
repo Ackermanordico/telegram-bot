@@ -71,10 +71,13 @@ async def join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = load_db()
     chat_id = str(update.effective_chat.id)
 
-    group = db["groups"].setdefault(chat_id, {"users": {}})
+    group = db["groups"].setdefault(chat_id, {"users": {}, "bans": []})
 
     for user in update.message.new_chat_members:
-        group["users"][str(user.id)] = int(time.time())
+        group["users"][str(user.id)] = {
+            "id": user.id,
+            "username": user.username
+        }
 
     save_db(db)
 
@@ -147,13 +150,32 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # 🔹 CASO 2: /ban @usuario motivo
     elif context.args:
-        arg = context.args[0]
+    arg = context.args[0]
 
-        if arg.startswith("@"):
-            username = arg.replace("@", "")
+    if arg.startswith("@"):
+        username = arg.replace("@", "")
+        user = None
 
-            try:
-                user_chat = await context.bot.get_chat(username)
+        # 🔍 buscar en usuarios guardados del grupo
+        for u in group["users"].values():
+            if u.get("username") == username:
+
+                class TempUser:
+                    def __init__(self, id, username):
+                        self.id = id
+                        self.username = username
+                        self.first_name = username
+
+                user = TempUser(u["id"], u["username"])
+                break
+
+        if not user:
+            await update.message.reply_text("❌ Usuario no registrado en el grupo")
+            return
+
+        # 📄 razón
+        if len(context.args) > 1:
+            reason = " ".join(context.args[1:])
                 user_id = user_chat.id
                 user_name = user_chat.first_name
 
