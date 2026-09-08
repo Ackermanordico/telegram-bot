@@ -142,6 +142,25 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"Error: {e}")
 
+async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("No tienes permiso 🚫")
+        return
+
+    if not update.message.reply_to_message:
+        await update.message.reply_text("Responde a un usuario")
+        return
+
+    user = update.message.reply_to_message.from_user
+    chat_id = update.effective_chat.id
+
+    try:
+        await context.bot.unban_chat_member(chat_id, user.id)
+        await update.message.reply_text(f"{user.first_name} fue desbaneado ✅")
+    except Exception as e:
+        await update.message.reply_text(f"Error: {e}")
+
 async def warn(update, context):
     if not is_admin(update.effective_user.id):
         await update.message.reply_text("No tienes permiso 🚫")
@@ -185,6 +204,7 @@ app.add_handler(CommandHandler("mute", mute))
 app.add_handler(CommandHandler("warn", warn))
 app.add_handler(CommandHandler("unmute", unmute))
 app.add_handler(CommandHandler("ban", ban))
+app.add_handler(CommandHandler("unban", unban))
 app.add_handler(CommandHandler("addadmin", addadmin))
 app.add_handler(CommandHandler("removeadmin", removeadmin))
 app.add_handler(CommandHandler("addowner", addowner))
