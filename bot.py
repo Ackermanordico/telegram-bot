@@ -155,7 +155,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 user = await context.bot.get_chat(username)
             except:
-                await update.message.reply_text("No pude encontrar ese usuario 💀
+                await update.message.reply_text("No pude encontrar ese usuario 💀")
 
 async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
