@@ -140,9 +140,10 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for chat_id in db["groups"]:
         try:
-            await context.bot.ban_chat_member(int(chat_id), user.id)
-        except:
-            pass
+    await context.bot.ban_chat_member(chat_id, user.id)
+    await update.message.reply_text("🚫 Baneado")
+except Exception as e:
+    await update.message.reply_text(f"Error: {e}")
 
     await update.message.reply_text("🚫 Baneado global")
 
