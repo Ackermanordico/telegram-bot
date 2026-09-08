@@ -69,7 +69,7 @@ def save_db(data):
 
 async def join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = load_db()
-    chat_id = str(update.effective_chat.id)
+0    chat_id = str(update.effective_chat.id)
 
     group = db["groups"].setdefault(chat_id, {"users": {}})
 
@@ -155,29 +155,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 user = await context.bot.get_chat(username)
             except:
-                await update.message.reply_text("No pude encontrar ese usuario 💀")
-                return
-
-            if len(context.args) > 1:
-                reason = " ".join(context.args[1:])
-
-    else:
-        await update.message.reply_text("Usa /ban respondiendo o /ban @usuario motivo")
-        return
-
-    # ❌ si no encontró usuario
-    if not user:
-        await update.message.reply_text("Usuario no válido")
-        return
-
-    # 💾 guardar en DB
-    if user.id not in [u["id"] for u in group["bans"]]:
-        group["bans"].append({
-            "id": user.id,
-            "username": user.username
-    })
-
-save_db(db)
+                await update.message.reply_text("No pude encontrar ese usuario 💀
 
 async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
