@@ -2,8 +2,9 @@ import json
 import time
 from telegram import Update, ChatPermissions
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+warnings_db = {}
 
-TOKEN = "AQUI_PONES_TU_TOKEN_NUEVO"
+TOKEN = "8957744605:AAHtKylOR4Y3YMpBgxOMWkVUbR07AFP44fI"
 
 DB_FILE = "db.json"
 
@@ -93,10 +94,11 @@ app = ApplicationBuilder().token("8957744605:AAHtKylOR4Y3YMpBgxOMWkVUbR07AFP44fI
 app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, join))
 app.add_handler(CommandHandler("setowner", setowner))
 app.add_handler(CommandHandler("mute", mute))
+app.add_handler(CommandHandler("warn", warn))
 app.add_handler(CommandHandler("unmute", unmute))
 app.add_handler(CommandHandler("ban", ban))
 
 app.run_polling()
 
-warnings_db = {}
+
 
