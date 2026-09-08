@@ -176,8 +176,6 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 📄 razón
         if len(context.args) > 1:
             reason = " ".join(context.args[1:])
-                user_id = user_chat.id
-                user_name = user_chat.first_name
 
                 # creamos objeto tipo user
                 class TempUser:
