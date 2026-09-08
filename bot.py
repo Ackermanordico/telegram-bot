@@ -98,3 +98,5 @@ app.add_handler(CommandHandler("ban", ban))
 
 app.run_polling()
 
+warnings_db = {}
+
