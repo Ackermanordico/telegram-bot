@@ -124,28 +124,23 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔊 Activado")
 
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    db = load_db()
+
     if not is_admin(update.effective_user.id):
         await update.message.reply_text("No tienes permiso 🚫")
         return
+
     if not update.message.reply_to_message:
+        await update.message.reply_text("Responde a un usuario")
         return
 
     user = update.message.reply_to_message.from_user
+    chat_id = update.effective_chat.id
 
-    if user.id not in db["global_bans"]:
-        db["global_bans"].append(user.id)
-
-    save_db(db)
-
-    for chat_id in db["groups"]:
-        try:
-            await context.bot.ban_chat_member(chat_id, user.id)
-            await update.message.reply_text("🚫 Baneado")
-        except Exception as e:
-            await update.message.reply_text(f"Error: {e}")
-
-    await update.message.reply_text("🚫 Baneado global")
+    try:
+        await context.bot.ban_chat_member(chat_id, user.id)
+        await update.message.reply_text(f"{user.first_name} fue baneado 🚫")
+    except Exception as e:
+        await update.message.reply_text(f"Error: {e}")
 
 async def warn(update, context):
     if not is_admin(update.effective_user.id):
