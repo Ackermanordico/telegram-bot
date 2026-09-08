@@ -2,7 +2,56 @@ import json
 import time
 from telegram import Update, ChatPermissions
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+OWNERS = {8638978228}
+ADMINS = set()
 warnings_db = {}
+
+def is_admin(user_id):
+    return user_id in OWNERS or user_id in ADMINS
+
+def is_owner(user_id):
+    return user_id in OWNERS
+async def addadmin(update, context):
+    if not is_owner(update.effective_user.id):
+        return
+
+    if not update.message.reply_to_message:
+        await update.message.reply_text("Responde a un usuario")
+        return
+
+    user = update.message.reply_to_message.from_user
+    ADMINS.add(user.id)
+
+    await update.message.reply_text(f"{user.first_name} ahora es admin ⚡")
+
+async def removeadmin(update, context):
+    if not is_owner(update.effective_user.id):
+        return
+
+    if not update.message.reply_to_message:
+        await update.message.reply_text("Responde a un usuario")
+        return
+
+    user = update.message.reply_to_message.from_user
+
+    if user.id in ADMINS:
+        ADMINS.remove(user.id)
+        await update.message.reply_text(f"{user.first_name} ya no es admin ❌")
+    else:
+        await update.message.reply_text("Ese usuario no es admin")
+
+async def addowner(update, context):
+    if not is_owner(update.effective_user.id):
+        return
+
+    if not update.message.reply_to_message:
+        await update.message.reply_text("Responde a un usuario")
+        return
+
+    user = update.message.reply_to_message.from_user
+    OWNERS.add(user.id)
+
+    await update.message.reply_text(f"{user.first_name} ahora es owner 👑")
 
 TOKEN = "8957744605:AAHtKylOR4Y3YMpBgxOMWkVUbR07AFP44fI"
 
@@ -88,6 +137,9 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
     await update.message.reply_text("🚫 Baneado global")
+if not is_admin(update.effective_user.id):
+    await update.message.reply_text("No tienes permiso 🚫")
+    return
 async def warn(update, context):
     if not update.message.reply_to_message:
         await update.message.reply_text("Responde a un usuario")
@@ -128,6 +180,9 @@ app.add_handler(CommandHandler("mute", mute))
 app.add_handler(CommandHandler("warn", warn))
 app.add_handler(CommandHandler("unmute", unmute))
 app.add_handler(CommandHandler("ban", ban))
+app.add_handler(CommandHandler("addadmin", addadmin))
+app.add_handler(CommandHandler("removeadmin", removeadmin))
+app.add_handler(CommandHandler("addowner", addowner))
 
 app.run_polling()
 
