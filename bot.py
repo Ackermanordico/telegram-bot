@@ -6,6 +6,19 @@ OWNERS = {8638978228}
 ADMINS = set()
 warnings_db = {}
 
+DB_FILE = "db.json"
+
+def load_db():
+    try:
+        with open(DB_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return {"owners": [], "groups": {}, "bans": []}
+
+def save_db(data):
+    with open(DB_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
 def is_admin(user_id):
     return user_id in OWNERS or user_id in ADMINS
 
@@ -54,15 +67,6 @@ async def addowner(update, context):
 
 TOKEN = "8957744605:AAHtKylOR4Y3YMpBgxOMWkVUbR07AFP44fI"
 
-DB_FILE = "db.json"
-
-def load_db():
-    try:
-        with open(DB_FILE, "r") as f:
-            return json.load(f)
-    except:
-        return {"owners": [], "groups": {}, "global_bans": []}
-
 def save_db(data):
     with open(DB_FILE, "w") as f:
         json.dump(data, f, indent=2)
@@ -105,9 +109,10 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
 
     await context.bot.restrict_chat_member(
-        chat_id,
-        user.id,
-        ChatPermissions(can_send_messages=False)
+    chat_id,
+    user.id,
+    ChatPermissions(can_send_messages=False)
+    )
 
 async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -209,7 +214,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     except Exception as e:
-        await update.message.reply_text(f"❌ Error:\n{e}")    )
+        await update.message.reply_text(f"❌ Error:\n{e}")
 
     await update.message.reply_text(f"{user.first_name} fue silenciado 🔇")
 
@@ -276,6 +281,7 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def warn(update, context):
     if not is_admin(update.effective_user.id):
+        return
         await update.message.reply_text("No tienes permiso 🚫")
         return
     if not update.message.reply_to_message:
