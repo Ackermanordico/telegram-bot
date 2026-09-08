@@ -139,6 +139,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🚫 Baneado global")
 if not is_admin(update.effective_user.id):
     await update.message.reply_text("No tienes permiso 🚫")
+
     return
 async def warn(update, context):
     if not update.message.reply_to_message:
