@@ -88,6 +88,37 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
 
     await update.message.reply_text("🚫 Baneado global")
+async def warn(update, context):
+    if not update.message.reply_to_message:
+        await update.message.reply_text("Responde a un usuario")
+        return
+
+    user = update.message.reply_to_message.from_user
+    user_id = user.id
+    chat_id = update.effective_chat.id
+
+    if user_id not in warnings_db:
+        warnings_db[user_id] = 0
+
+    warnings_db[user_id] += 1
+    warns = warnings_db[user_id]
+
+    if warns >= 3:
+        await context.bot.restrict_chat_member(
+            chat_id,
+            user_id,
+            ChatPermissions(can_send_messages=False)
+        )
+
+        warnings_db[user_id] = 0
+
+        await update.message.reply_text(
+            f"{user.first_name} fue silenciado 🔇"
+        )
+    else:
+        await update.message.reply_text(
+            f"{user.first_name} tiene {warns}/3 advertencias ⚠️"
+        )
 
 app = ApplicationBuilder().token("8957744605:AAHtKylOR4Y3YMpBgxOMWkVUbR07AFP44fI").build()
 
