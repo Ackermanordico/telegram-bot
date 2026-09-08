@@ -150,7 +150,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # 🔹 CASO 2: /ban @usuario motivo
     elif context.args:
-    arg = context.args[0]
+        arg = context.args[0]
 
     if arg.startswith("@"):
         username = arg.replace("@", "")
